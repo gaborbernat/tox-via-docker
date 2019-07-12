@@ -1,27 +1,20 @@
 import pluggy
-from tox.reporter import verbosity0
+
+from .config import tox_addoption, tox_configure
+from .image.base import tox_get_python_executable
+from .image.env import tox_testenv_create
+from .run import tox_runtest
 
 hookimpl = pluggy.HookimplMarker("tox")
 
 
-@hookimpl
-def tox_addoption(parser):
-    """Add a command line option for later use"""
-    parser.add_argument("--magic", action="store", help="this is a magical option")
-    parser.add_testenv_attribute(
-        name="cinderella",
-        type="string",
-        default="not here",
-        help="an argument pulled from the tox.ini",
-    )
+for func in (
+    tox_addoption,
+    tox_configure,
+    tox_get_python_executable,
+    tox_testenv_create,
+    tox_runtest,
+):
+    hookimpl(func)
 
-
-@hookimpl
-def tox_configure(config):
-    """Access your option during configuration"""
-    verbosity0("flag magic is: {}".format(config.option.magic))
-
-
-@hookimpl
-def tox_runtest_post(venv):
-    verbosity0("cinderella is {}".format(venv.envconfig.cinderella))
+globals().pop("func")

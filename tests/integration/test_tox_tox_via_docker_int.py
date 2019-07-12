@@ -1,17 +1,19 @@
-def test_run(initproj, cmd):
+def test_run_just_run(initproj, cmd):
     initproj(
         "pkg123-0.7",
         filedefs={
             "tox.ini": """
                 [tox]
-                envlist = py, b
+                envlist = py
                 skipsdist = True
+
                 [testenv]
-                commands=python -c "print('perform')"
-                [testenv:b]
-                cinderella = True
+                description = {envname} {envdir} {envtmpdir} {envlogdir} {envpython} {envbindir} {envsitepackagesdir}
+                commands=python -c "import sys; print(sys.platform())"
+
             """
         },
     )
-    result = cmd("--magic", "yes")
-    result.assert_success(is_run_test_env=False)
+    result = cmd("-vvv")
+    result.assert_success(is_run_test_env=True)
+    assert result.out
